@@ -5,8 +5,27 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// CORS Configuration
+const allowedOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',')
+  : ['http://localhost:5173'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like Postman, mobile apps)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 
 // Password validation endpoint
